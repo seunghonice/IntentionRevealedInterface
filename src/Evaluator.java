@@ -1,23 +1,31 @@
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Collections;
 
 public class Evaluator {
-	private ArrayList<String> ignoreNames;
-	private ArrayList<String> articles; 
+	private ArrayList<String> ignoreNames; // UL에 들어가지 않을 names
+	private ArrayList<String> articles; // 조사, 관사 등 문법적 어구
 	private ArrayList<String> UL;  // Ubiquitous Language
-	private ArrayList<String> applyingList;
+	private ArrayList<String> applyingClasses;
+	private String[] jsoupClasses = {"CharacterReader", "HtmlTreeBuilder", "Parser", "Tag", "TokenQueue"};
+	private String[] csvClasses = {"CSVFormat", "CSVParser", "CSVPrinter", "CSVRecord"};
+	private String[][] apis = {jsoupClasses, csvClasses};
 	
-	public Evaluator(String address) {
+	public Evaluator(String address, int whichClass) {
 		ignoreNames = new ArrayList<>();
 		articles = new ArrayList<>();
 		UL = new ArrayList<>();
-		applyingList = new ArrayList<>();
-		
+		applyingClasses = new ArrayList<>();
+		if (whichClass == 0) { // jsoup
+			Collections.addAll(applyingClasses, jsoupClasses);
+		} else { // csv
+			Collections.addAll(applyingClasses, csvClasses);
+		}
 		initIgnoreNames();
 		initArticles();
 		
 		printFileList(address);
-		
+		System.out.println("ApplyingClasses: " + applyingClasses.stream().toString());
 	}
 	
 	public void addClassNameToUL(String className) {
@@ -41,6 +49,11 @@ public class Evaluator {
 		System.out.println("-------------------");
 	}
 	
+	private float IRI(int intendedMethodNames, int intendedParameterNames, int numberOfMethodNames, int numberOfParameterNames) {
+		return (intendedMethodNames + intendedParameterNames + 1) 
+				/ (numberOfMethodNames + numberOfParameterNames + 1);
+	}
+	
 	private void initIgnoreNames() {
 		ignoreNames.add(".settings");
 		ignoreNames.add("bin");
@@ -59,5 +72,9 @@ public class Evaluator {
 		articles.add("at");
 		articles.add("a");
 		articles.add("an");
+	}
+	
+	private void evaluateIRI(String className, float IRI) {
+		System.out.println("class " + className + "'s evaluated IRI value(v): " + IRI);
 	}
 }
